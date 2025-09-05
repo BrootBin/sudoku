@@ -1,0 +1,49 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<title>Sudoku</title>
+<link rel="stylesheet" href="{% static 'game/css/style.css' %}">
+</head>
+<body>
+
+<div id="controls">
+    <label>Розмір:
+        <select id="size">
+            <option value="9" selected>9x9</option>
+            <option value="16">16x16</option>
+        </select>
+    </label>
+
+    <label>Складність:
+        <select id="difficulty">
+            <option value="easy">Легкий</option>
+				<option value="normal" selected>Нормальний</option>
+				<option value="medium">Середній</option>
+            <option value="hard">Важкий</option>
+				<option value="death">Смерть</option>
+        </select>
+    </label>
+
+    <button id="new-game-btn">Нова гра</button>
+    <button id="check-btn">Перевірити</button>
+</div>
+
+<div id="sudoku"></div>
+
+<div id="message-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <p id="message-text"></p>
+        <button id="modal-btn"></button>
+    </div>
+</div>
+
+	<footer id="footer">
+   	product by BrootBin for ❤️
+	</footer>
+
+<script src="{% static 'game/js/script.js' %}"></script>
+</body>
+</html>
