@@ -1,1 +1,2 @@
+release: python sudoku_game/manage.py collectstatic --noinput
 web: gunicorn sudoku_game.wsgi
