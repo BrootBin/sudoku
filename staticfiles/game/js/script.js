@@ -2,6 +2,7 @@ let currentPuzzle = [];
 let currentSolution = [];
 let size = 9;
 let difficulty = "easy";
+let highlightTimeout = null;
 
 // Функція малювання сітки
 function drawGrid(puzzle, size) {
@@ -23,6 +24,14 @@ function drawGrid(puzzle, size) {
                 input.disabled = true;
                 input.style.fontWeight = "bold";
             }
+
+            // Анімація при введенні числа
+            input.addEventListener("input", () => {
+                input.classList.remove("entered");
+                void input.offsetWidth; // тригер перезапуску анімації
+                input.classList.add("entered");
+            });
+
             cell.appendChild(input);
 
             // товсті межі блоків
@@ -31,46 +40,62 @@ function drawGrid(puzzle, size) {
             if (rowIndex % blockSize === 0) cell.style.borderTop = "2px solid black";
             if ((rowIndex + 1) % blockSize === 0) cell.style.borderBottom = "2px solid black";
 
-            // зовнішня рамка
             if (colIndex === size - 1) cell.style.borderRight = "2px solid black";
             if (rowIndex === size - 1) cell.style.borderBottom = "2px solid black";
 
-            // підсвічування при наведенні
+            // підсвічування при наведенні (ПК) та при торканні (мобільні)
             cell.onmouseenter = () => highlightCell(rowIndex, colIndex);
             cell.onmouseleave = () => clearHighlight();
+            cell.onclick = () => {
+                highlightCell(rowIndex, colIndex);
+                if (window.innerWidth <= 768) { // мобільні
+                    clearTimeout(highlightTimeout);
+                    highlightTimeout = setTimeout(clearHighlight, 800);
+                }
+            };
 
             sudokuDiv.appendChild(cell);
         });
     });
 
-    adjustGridSize(); // підлаштування під екран
+    adjustGridSize();
 }
 
 // підсвічування ряду та стовпця
 function highlightCell(row, col) {
+    clearHighlight();
     const cells = document.querySelectorAll("#sudoku .cell");
-    const size = Math.sqrt(cells.length);
+    const gridSize = Math.sqrt(cells.length);
     cells.forEach((cell, index) => {
-        const r = Math.floor(index / size);
-        const c = index % size;
+        const r = Math.floor(index / gridSize);
+        const c = index % gridSize;
         if (r === row || c === col) cell.classList.add("highlight");
     });
+
+    if (window.innerWidth <= 768) {
+        setTimeout(() => {
+            document.querySelectorAll("#sudoku .cell.highlight").forEach(cell => {
+                cell.classList.add("fade");
+            });
+        }, 700); // через 0.7с починає затемнюватися
+    }
 }
 
 function clearHighlight() {
     document.querySelectorAll("#sudoku .cell.highlight").forEach(cell => {
-        cell.classList.remove("highlight");
+        cell.classList.remove("highlight", "fade");
     });
 }
+
 
 // Адаптивне підлаштування розміру клітинок
 function adjustGridSize() {
     const sudokuDiv = document.getElementById("sudoku");
-    const screenWidth = window.innerWidth;
-    let cellSize = 40; // базовий розмір
+    const screenWidth = window.innerWidth * 0.95;
+    const screenHeight = window.innerHeight * 0.7; // залишаємо місце для контролів
 
-    if (screenWidth <= 600) cellSize = 30;
-    if (screenWidth <= 400) cellSize = 25;
+    // вибираємо мінімальний розмір клітинки між шириною та висотою
+    let cellSize = Math.floor(Math.min(screenWidth / size, screenHeight / size));
 
     sudokuDiv.style.gridTemplateColumns = `repeat(${size}, ${cellSize}px)`;
     sudokuDiv.style.gridTemplateRows = `repeat(${size}, ${cellSize}px)`;
@@ -80,9 +105,10 @@ function adjustGridSize() {
         cell.style.height = `${cellSize}px`;
         cell.style.lineHeight = `${cellSize}px`;
         const input = cell.querySelector("input");
-        if (input) input.style.fontSize = `${cellSize * 0.45}px`;
+        if (input) input.style.fontSize = `${cellSize * 0.5}px`;
     });
 }
+
 
 // Створення нової гри
 async function newGame() {
@@ -102,7 +128,7 @@ async function newGame() {
     hideModal();
 }
 
-// Показ модального вікна
+// Модальне вікно
 function showModal(message, correct = false) {
     const modal = document.getElementById("message-modal");
     const text = document.getElementById("message-text");
@@ -155,14 +181,24 @@ function checkGame() {
         const msgs = [
             "Ухти пухти! Яка молодчинка!",
             "От це ти супер, юху!",
-            "Ухх, яка красотка!"
+            "Ухх, яка красотка!",
+            "Вау, ти геній!",
+            "Браво! Так тримати!",
+            "Ти просто космос!",
+            "Ай ти моє сонечко!",
+            "Фантастика! Вітаю!"
         ];
         showModal(msgs[Math.floor(Math.random() * msgs.length)], true);
     } else {
         const msgs = [
             "Ну бліннн, постарайся ще!",
             "От халепа, щось накосячила!",
-            "Майже, спробуй ще!"
+            "Майже, спробуй ще!",
+            "Не здавайся, ти зможеш!",
+            "Ти на вірному шляху, продовжуй!",
+            "Ойойой, не все так просто!",
+            "Ти майже дійшла до мети!",
+            "Не впадай у відчай, вперед!"
         ];
         showModal(msgs[Math.floor(Math.random() * msgs.length)], false);
     }

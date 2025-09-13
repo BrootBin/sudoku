@@ -81,7 +81,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'sudoku_game.sudoku_game.wsgi.application'
+WSGI_APPLICATION = 'sudoku_game.wsgi.application'
 
 
 
